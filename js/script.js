@@ -15,7 +15,7 @@ selectTag.forEach((tag,id) => {
             selected = "selected";
         }
 
-        let option = `<option value="${country_code}"${selected}>${countries[country_code]}</option>`;
+        let option = `<option ${selected} value="${country_code}">${countries[country_code]}</option>`;
         tag.insertAdjacentHTML("beforeend", option); // adding options tag inside select tag 
     }
 
@@ -31,18 +31,34 @@ exchangeIcon.addEventListener("click", () => {
     selectTag[1].value = tempLang;
 });
 
+fromText.addEventListener("keyup", () => {
+    if(!fromText.value) {
+        toText.value = "";
+    }
+});
+
 translateBtn.addEventListener("click",() => {
-    let text = fromText.value, 
+    let text = fromText.value.trim(), 
     translateFrom = selectTag[0].value, // getting fromSelect tag value
     translateTo = selectTag[1].value; // getting toSelect tag value
+    if(!text) return;
+    toText.setAttribute("placeholder","Translating...");
     let apiUrl = `https://api.mymemory.translated.net/get?q=${text}&langpair=${translateFrom}|${translateTo}`;
     
     // fetching api responseand returning it with parsing into js obj 
     // and in another then method receiving that obj
     fetch(apiUrl).then(res => res.json()).then(data => {
         toText.value =  data.responseData.translatedText;
+        data.matches.forEach(data => {
+            if(data.id === 0) {
+                toText.value = data.translation;
+            }
+        });
+
+        toText.setAttribute("placeholder","Translation");
     });
 });
+
 
 icons.forEach(icon => {
     icon.addEventListener("click", ({target}) => {
@@ -54,7 +70,16 @@ icons.forEach(icon => {
                 navigator.clipboard.writeText(toText.value);
             }
         } else {
-            console.log("Speech icon clicked")
+            let utterance;
+            // if clicked icon has from id, copy the fromTextarea value else copy the toTextarea
+            if(target.id == "from") {
+                utterance = new SpeechSynthesisUtterance(fromText.value);
+                utterance.lang = selectTag[0].value; // setting utterance language to fromSelect tag value 
+            } else {
+                utterance = new SpeechSynthesisUtterance(toText.value);
+                utterance.lang = selectTag[1].value; // setting utterance language to fromSelect tag value 
+            }
+        SpeechSynthesis.speak(utterance); // speak the passed utterance
         }
     });
 });
