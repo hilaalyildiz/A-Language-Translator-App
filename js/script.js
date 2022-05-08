@@ -1,19 +1,21 @@
 const fromText = document.querySelector(".from-text"),
 toText = document.querySelector(".to-text"),
+exchageIcon = document.querySelector(".exchange"),
 selectTag = document.querySelectorAll("select"),
-exchangeIcon = document.querySelector(".exchange"),
-translateBtn = document.querySelector("button"),
 icons = document.querySelectorAll(".row i");
-
+translateBtn = document.querySelector("button"),
 selectTag.forEach((tag,id) => {
-    for (const country_code in countries) {
-        // seelcting English by default as from language and Turkish as to language
-        let selected;
+    for (let country_code in countries) {
+        // selecting English by default as from language and Turkish as to language
+        
+        /* let selected;
         if(id == 0 && country_code== "en-GB") {
             selected = "selected";
         } else if(id == 1 && country_code== "tr-TR") {
             selected = "selected";
-        }
+        }*/
+
+        let selected = id == 0 ? country_code == "en-GB" ? "selected" : "" : country_code == "tr-TR" ? "selected" : "";
 
         let option = `<option ${selected} value="${country_code}">${countries[country_code]}</option>`;
         tag.insertAdjacentHTML("beforeend", option); // adding options tag inside select tag 
@@ -21,13 +23,12 @@ selectTag.forEach((tag,id) => {
 
 });
 
-exchangeIcon.addEventListener("click", () => {
-    // exchanging textarea and select tag values 
-    let tempText = fromText.value;
+exchageIcon.addEventListener("click", () => {
+    let tempText = fromText.value,
     tempLang = selectTag[0].value;
     fromText.value = toText.value;
-    selectTag[0].value =selectTag[1].value;
     toText.value = tempText;
+    selectTag[0].value = selectTag[1].value;
     selectTag[1].value = tempLang;
 });
 
@@ -62,6 +63,7 @@ translateBtn.addEventListener("click",() => {
 
 icons.forEach(icon => {
     icon.addEventListener("click", ({target}) => {
+        if(!fromText.value || !toText.value) return;
         if(target.classList.contains("fa-copy")) {
             // if clicked icon has from id, copy the fromTextarea value else copy the toTextarea
             if(target.id == "from") {
@@ -79,7 +81,7 @@ icons.forEach(icon => {
                 utterance = new SpeechSynthesisUtterance(toText.value);
                 utterance.lang = selectTag[1].value; // setting utterance language to fromSelect tag value 
             }
-        SpeechSynthesis.speak(utterance); // speak the passed utterance
+        speechSynthesis.speak(utterance); // speak the passed utterance
         }
     });
 });
