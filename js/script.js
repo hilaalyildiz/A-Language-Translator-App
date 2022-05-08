@@ -2,7 +2,8 @@ const fromText = document.querySelector(".from-text"),
 toText = document.querySelector(".to-text"),
 selectTag = document.querySelectorAll("select"),
 exchangeIcon = document.querySelector(".exchange"),
-translateBtn = document.querySelector("button");
+translateBtn = document.querySelector("button"),
+icons = document.querySelectorAll(".row i");
 
 selectTag.forEach((tag,id) => {
     for (const country_code in countries) {
@@ -39,7 +40,21 @@ translateBtn.addEventListener("click",() => {
     // fetching api responseand returning it with parsing into js obj 
     // and in another then method receiving that obj
     fetch(apiUrl).then(res => res.json()).then(data => {
-        console.log(data);
         toText.value =  data.responseData.translatedText;
-    })
+    });
+});
+
+icons.forEach(icon => {
+    icon.addEventListener("click", ({target}) => {
+        if(target.classList.contains("fa-copy")) {
+            // if clicked icon has from id, copy the fromTextarea value else copy the toTextarea
+            if(target.id == "from") {
+                navigator.clipboard.writeText(fromText.value);
+            } else {
+                navigator.clipboard.writeText(toText.value);
+            }
+        } else {
+            console.log("Speech icon clicked")
+        }
+    });
 });
